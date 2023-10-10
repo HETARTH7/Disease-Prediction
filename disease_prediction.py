@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import pandas as pd
-import seaborn as sns
+# import seaborn as sns
 from sklearn.metrics import accuracy_score, confusion_matrix
 from scipy.stats import mode
 
