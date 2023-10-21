@@ -1,5 +1,0 @@
-numpy
-pandas
-requests
-Django==4.2.5
-django-cors-headers
