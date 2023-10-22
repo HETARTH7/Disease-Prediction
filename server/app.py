@@ -11,8 +11,10 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from flask import Flask, request, jsonify
 import numpy as np
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 dataset = pd.read_csv('Data/Training.csv').dropna(axis=1)
 encoder = LabelEncoder()
@@ -123,7 +125,8 @@ def predictDisease(symptoms):
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
-        symptoms = request.form.get('symptoms')
+        data = request.get_json()
+        symptoms = data.get('symptoms')
         prediction = predictDisease(symptoms)
         return jsonify(prediction)
 
