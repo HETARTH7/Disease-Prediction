@@ -187,6 +187,13 @@ class SymptomForm extends Component {
 
   render() {
     const { predictions, selectedSymptoms } = this.state;
+    const symptomsPerRow = 4;
+
+    const symptomRows = [];
+    for (let i = 0; i < this.availableSymptoms.length; i += symptomsPerRow) {
+      const row = this.availableSymptoms.slice(i, i + symptomsPerRow);
+      symptomRows.push(row);
+    }
 
     return (
       <div className="container text-center">
@@ -194,16 +201,22 @@ class SymptomForm extends Component {
         <form className="m-5" onSubmit={this.handleSubmit}>
           <div>
             <h2>Select your Symptoms:</h2>
-            {this.availableSymptoms.map((symptom, idx) => (
-              <div key={idx} className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  value={symptom}
-                  checked={selectedSymptoms.includes(symptom)}
-                  onChange={this.handleCheckboxChange}
-                />
-                <label className="form-check-label">{symptom}</label>
+            {symptomRows.map((row, rowIndex) => (
+              <div className="row" key={rowIndex}>
+                {row.map((symptom, idx) => (
+                  <div key={idx} className="col-md-3">
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        value={symptom}
+                        checked={selectedSymptoms.includes(symptom)}
+                        onChange={this.handleCheckboxChange}
+                      />
+                      <label className="form-check-label">{symptom}</label>
+                    </div>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
