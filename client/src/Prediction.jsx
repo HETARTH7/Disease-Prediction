@@ -4,7 +4,7 @@ class SymptomForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedSymptoms: [],
+      selectedSymptoms: Array(5).fill([]), // Array of 5 selected symptoms arrays
       predictions: {},
     };
     this.availableSymptoms = [
@@ -143,27 +143,18 @@ class SymptomForm extends Component {
     ];
   }
 
-  handleCheckboxChange = (event) => {
+  handleSelectChange = (event, selectIndex) => {
     const { value } = event.target;
     this.setState((prevState) => {
-      if (prevState.selectedSymptoms.includes(value)) {
-        return {
-          selectedSymptoms: prevState.selectedSymptoms.filter(
-            (symptom) => symptom !== value
-          ),
-        };
-      } else {
-        return {
-          selectedSymptoms: [...prevState.selectedSymptoms, value],
-        };
-      }
+      const updatedSelectedSymptoms = [...prevState.selectedSymptoms];
+      updatedSelectedSymptoms[selectIndex] = [value];
+      return { selectedSymptoms: updatedSelectedSymptoms };
     });
   };
 
   handleSubmit = async (event) => {
     event.preventDefault();
-
-    const symptoms = this.state.selectedSymptoms.join(",");
+    const allSelectedSymptoms = this.state.selectedSymptoms.flat().join(",");
 
     try {
       const response = await fetch("http://localhost:5000/predict", {
@@ -171,7 +162,7 @@ class SymptomForm extends Component {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ symptoms }),
+        body: JSON.stringify({ symptoms: allSelectedSymptoms }),
       });
 
       if (response.ok) {
@@ -187,13 +178,6 @@ class SymptomForm extends Component {
 
   render() {
     const { predictions, selectedSymptoms } = this.state;
-    const symptomsPerRow = 4;
-
-    const symptomRows = [];
-    for (let i = 0; i < this.availableSymptoms.length; i += symptomsPerRow) {
-      const row = this.availableSymptoms.slice(i, i + symptomsPerRow);
-      symptomRows.push(row);
-    }
 
     return (
       <div className="container text-center">
@@ -201,26 +185,26 @@ class SymptomForm extends Component {
         <form className="m-5" onSubmit={this.handleSubmit}>
           <div>
             <h2>Select your Symptoms:</h2>
-            {symptomRows.map((row, rowIndex) => (
-              <div className="row" key={rowIndex}>
-                {row.map((symptom, idx) => (
-                  <div key={idx} className="col-md-3">
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        value={symptom}
-                        checked={selectedSymptoms.includes(symptom)}
-                        onChange={this.handleCheckboxChange}
-                      />
-                      <label className="form-check-label">{symptom}</label>
-                    </div>
-                  </div>
-                ))}
+            {selectedSymptoms.map((selected, selectIndex) => (
+              <div className="form-group" key={selectIndex}>
+                <select
+                  className="form-control m-3"
+                  value={selected[0] || ""}
+                  onChange={(event) =>
+                    this.handleSelectChange(event, selectIndex)
+                  }
+                >
+                  <option value="">Select symptom {selectIndex + 1}</option>
+                  {this.availableSymptoms.map((symptom, index) => (
+                    <option key={index} value={symptom}>
+                      {symptom}
+                    </option>
+                  ))}
+                </select>
               </div>
             ))}
           </div>
-          <button className="btn btn-success mt-3" type="submit">
+          <button className="btn btn-danger mt-3" type="submit">
             Predict
           </button>
         </form>
